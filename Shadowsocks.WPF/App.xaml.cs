@@ -14,6 +14,8 @@ namespace Shadowsocks.WPF
     {
         public App()
         {
+            Locator.CurrentMutable.InitializeSplat();
+            Locator.CurrentMutable.InitializeReactiveUI();
             Locator.CurrentMutable.RegisterViewsForViewModels(Assembly.GetCallingAssembly());
         }
     }
