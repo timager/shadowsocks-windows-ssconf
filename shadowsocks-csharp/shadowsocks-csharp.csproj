@@ -291,6 +291,8 @@
     <Compile Include="Util\Sockets\WrappedSocket.cs" />
     <Compile Include="Util\SystemProxy\ProxyException.cs" />
     <Compile Include="Util\SystemProxy\Sysproxy.cs" />
+    <Compile Include="Util\ConnectionPrefix.cs" />
+    <Compile Include="Util\SubscriptionUrls.cs" />
     <Compile Include="Util\Util.cs" />
     <Compile Include="Util\ViewUtils.cs" />
     <Compile Include="ViewModels\ForwardProxyViewModel.cs" />

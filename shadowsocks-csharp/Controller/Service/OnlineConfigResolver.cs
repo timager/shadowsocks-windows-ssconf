@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Shadowsocks.Model;
+using Shadowsocks.Util;
 
 namespace Shadowsocks.Controller.Service
 {
@@ -14,7 +15,8 @@ namespace Shadowsocks.Controller.Service
         public static async Task<List<Server>> GetOnline(string url)
         {
             var httpClient = Program.MainController.GetHttpClient();
-            string server_json = await httpClient.GetStringAsync(url);
+            var normalizedUrl = SubscriptionUrls.Parse(url).ToString();
+            string server_json = await httpClient.GetStringAsync(normalizedUrl);
             var servers = server_json.GetServers();
             foreach (var server in servers)
             {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -12,6 +12,7 @@ using Shadowsocks.Encryption;
 using Shadowsocks.Encryption.AEAD;
 using Shadowsocks.Encryption.Exception;
 using Shadowsocks.Model;
+using Shadowsocks.Util;
 using Shadowsocks.Proxy;
 using Shadowsocks.Util.Sockets;
 
@@ -196,6 +197,7 @@ namespace Shadowsocks.Controller
 
         private IEncryptor _encryptor;
         private Server _server;
+        private byte[] _connectionPrefix = Array.Empty<byte>();
 
         private AsyncSession _currentRemoteSession;
 
@@ -267,6 +269,12 @@ namespace Shadowsocks.Controller
             _encryptor = EncryptorFactory.GetEncryptor(server.method, server.password);
 
             _server = server;
+            _connectionPrefix = ConnectionPrefix.Decode(server.prefix);
+            if (_encryptor is AEADEncryptor aeadEncryptor)
+            {
+                aeadEncryptor.SetConnectionPrefix(server.prefix);
+                _connectionPrefix = Array.Empty<byte>();
+            }
 
             /* prepare address buffer length for AEAD */
             Logger.Trace($"_addrBufLength={_addrBufLength}");
@@ -993,6 +1001,15 @@ namespace Shadowsocks.Controller
 
             OnOutbound?.Invoke(this, new SSTransmitEventArgs(_server, bytesToSend));
             _startSendingTime = DateTime.Now;
+            if (_connectionPrefix.Length > 0)
+            {
+                // Keep using _connetionSendBuffer so partial-send retries in PipeRemoteSendCallback
+                // reconstruct from the same backing buffer.
+                Buffer.BlockCopy(_connetionSendBuffer, 0, _connetionSendBuffer, _connectionPrefix.Length, bytesToSend);
+                Buffer.BlockCopy(_connectionPrefix, 0, _connetionSendBuffer, 0, _connectionPrefix.Length);
+                bytesToSend += _connectionPrefix.Length;
+                _connectionPrefix = Array.Empty<byte>();
+            }
             session.Remote.BeginSend(_connetionSendBuffer, 0, bytesToSend, SocketFlags.None,
                 PipeRemoteSendCallback, new object[] { session, bytesToSend });
         }
@@ -1062,3 +1079,4 @@ namespace Shadowsocks.Controller
         }
     }
 }
+
