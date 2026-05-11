@@ -41,6 +41,9 @@ namespace Shadowsocks.Model
         public string plugin_args;
         [DefaultValue("")]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        public string prefix;
+        [DefaultValue("")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         public string remarks;
 
         [DefaultValue("")]
@@ -142,6 +145,7 @@ namespace Shadowsocks.Model
             plugin = "";
             plugin_opts = "";
             plugin_args = "";
+            prefix = "";
             password = "";
             remarks = "";
             timeout = DefaultServerTimeoutSec;

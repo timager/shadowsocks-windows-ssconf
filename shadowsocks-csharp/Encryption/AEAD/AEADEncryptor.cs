@@ -7,6 +7,7 @@ using System.Text;
 using Shadowsocks.Encryption.CircularBuffer;
 using Shadowsocks.Controller;
 using Shadowsocks.Encryption.Exception;
+using Shadowsocks.Util;
 
 namespace Shadowsocks.Encryption.AEAD
 {
@@ -54,6 +55,7 @@ namespace Shadowsocks.Encryption.AEAD
 
         // Is first chunk(tcp request)
         protected bool _tcpRequestSent;
+        private byte[] _saltPrefix = Array.Empty<byte>();
 
         public AEADEncryptor(string method, string password)
             : base(method, password)
@@ -145,6 +147,11 @@ namespace Shadowsocks.Encryption.AEAD
 
         public static void randBytes(byte[] buf, int length) { RNG.GetBytes(buf, length); }
 
+        public void SetConnectionPrefix(string prefix)
+        {
+            _saltPrefix = ConnectionPrefix.Decode(prefix);
+        }
+
         public abstract void cipherEncrypt(byte[] plaintext, uint plen, byte[] ciphertext, ref uint clen);
 
         public abstract void cipherDecrypt(byte[] ciphertext, uint clen, byte[] plaintext, ref uint plen);
@@ -163,6 +170,12 @@ namespace Shadowsocks.Encryption.AEAD
                 // Generate salt
                 byte[] saltBytes = new byte[saltLen];
                 randBytes(saltBytes, saltLen);
+                if (_saltPrefix.Length > 0)
+                {
+                    // Outline/Android-compatible behavior: prefix bytes occupy the
+                    // beginning of the AEAD salt.
+                    Buffer.BlockCopy(_saltPrefix, 0, saltBytes, 0, Math.Min(_saltPrefix.Length, saltLen));
+                }
                 InitCipher(saltBytes, true, false);
                 Array.Copy(saltBytes, 0, outbuf, 0, saltLen);
                 outlength = saltLen;

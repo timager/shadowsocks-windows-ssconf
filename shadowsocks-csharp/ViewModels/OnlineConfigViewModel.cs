@@ -5,6 +5,7 @@ using ReactiveUI.Validation.Helpers;
 using Shadowsocks.Controller;
 using Shadowsocks.Localization;
 using Shadowsocks.Model;
+using Shadowsocks.Util;
 using Shadowsocks.View;
 using System;
 using System.Collections.Generic;
@@ -43,8 +44,7 @@ namespace Shadowsocks.ViewModels
                 count => count > 0);
             var canAdd = this.WhenAnyValue(
                 x => x.Address,
-                address => Uri.IsWellFormedUriString(address, UriKind.Absolute) &&
-                (address.StartsWith("https://") || address.StartsWith("http://")));
+                address => SubscriptionUrls.IsSupported(address));
 
             Update = ReactiveCommand.CreateFromTask(() => _controller.UpdateOnlineConfig(SelectedSource), canUpdateCopyRemove);
             UpdateAll = ReactiveCommand.CreateFromTask(_controller.UpdateAllOnlineConfig, canUpdateAll);
