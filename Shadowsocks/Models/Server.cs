@@ -29,6 +29,11 @@ namespace Shadowsocks.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? PluginOpts { get; set; }
 
+        /// <inheritdoc/>
+        [JsonPropertyName("prefix")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? SsconfPrefix { get; set; }
+
         /// <summary>
         /// Gets or sets the arguments passed to the plugin process.
         /// </summary>

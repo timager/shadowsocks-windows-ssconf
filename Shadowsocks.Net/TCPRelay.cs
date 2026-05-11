@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 using static Shadowsocks.Net.Crypto.CryptoBase;
 using Shadowsocks.Models;
+using Shadowsocks.Utilities;
 
 namespace Shadowsocks.Net
 {
@@ -492,11 +493,13 @@ namespace Shadowsocks.Net
         private async Task SendAddress(EndPoint dest)
         {
             byte[] dstByte = GetSocks5EndPointByte(dest);
-            using var t = pool.Rent(512);
+            var prefix = ConnectionPrefix.Decode(_server.SsconfPrefix);
+            using var t = pool.Rent(512 + prefix.Length);
             try
             {
-                int addrlen = encryptor.Encrypt(dstByte, t.Memory.Span);
-                await _remote.SendAsync(t.Memory.Slice(0, addrlen));
+                prefix.CopyTo(t.Memory.Span);
+                int addrlen = encryptor.Encrypt(dstByte, t.Memory.Span.Slice(prefix.Length));
+                await _remote.SendAsync(t.Memory.Slice(0, prefix.Length + addrlen));
             }
             catch (Exception e)
             {

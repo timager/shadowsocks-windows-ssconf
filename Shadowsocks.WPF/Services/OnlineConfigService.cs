@@ -1,3 +1,4 @@
+using Shadowsocks.Utilities;
 using Shadowsocks.WPF.Models;
 using Splat;
 using System;
@@ -32,7 +33,8 @@ namespace Shadowsocks.WPF.Services
         public async Task Update()
         {
             // Download
-            var downloadedGroup = await _httpClient.GetFromJsonAsync<Group>(_group.OnlineConfigSource);
+            var source = SubscriptionUrls.Parse(_group.OnlineConfigSource);
+            var downloadedGroup = await _httpClient.GetFromJsonAsync<Group>(source);
             if (downloadedGroup == null)
                 throw new Exception("An error occurred.");
             // Merge downloaded group into existing group

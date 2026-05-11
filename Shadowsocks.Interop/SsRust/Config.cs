@@ -42,6 +42,11 @@ namespace Shadowsocks.Interop.SsRust
         /// <inheritdoc cref="Server.PluginOpts"/>
         public string? PluginOpts { get; set; }
 
+        /// <inheritdoc cref="Server.SsconfPrefix"/>
+        [JsonPropertyName("prefix")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? SsconfPrefix { get; set; }
+
         /// <inheritdoc cref="Server.PluginArgs"/>
         public List<string>? PluginArgs { get; set; }
 

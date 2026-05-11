@@ -40,6 +40,13 @@ namespace Shadowsocks.Models
         public string? PluginOpts { get; set; }
 
         /// <summary>
+        /// Gets or sets the optional bytes sent before the first encrypted TCP payload.
+        /// </summary>
+        [JsonPropertyName("prefix")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? SsconfPrefix { get; set; }
+
+        /// <summary>
         /// Gets or sets the server name.
         /// </summary>
         [JsonPropertyName("remarks")]
